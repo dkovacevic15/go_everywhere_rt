@@ -1,4 +1,4 @@
-const socket = require('socket.io-client')('http://localhost:3000');
+const socket = require('socket.io-client')('http://localhost:4700');
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -6,7 +6,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var axios = require('axios');
-var qs = require('qs')
+var qs = require('qs');
 
 var request = function (method, uri, d = null, token = '') {
   if (!method) {
@@ -56,17 +56,29 @@ var authenticate = (username, password) => {
       });
     });
   })
-  .catch((error) => {
-    console.log(error);
-  });
+      .catch((error) => {
+        console.log(error);
+      });
 }
 
-socket.on('testing', (payload) => console.log(payload));
+//socket.on('testing', (payload) => console.log(payload));
+//socket.on('chat', (payload) => console.log(payload))
 
+socket.on('public-chat', (payload) => console.log(payload));
+socket.on('private-chat', (payload) => console.log(payload));
 socket.on('connect', () => {
   authenticate('peradetlic', 'qweqwe').then((userData) => {
     console.log(userData);
-    socket.emit('authenticate', userData)
+    socket.emit('authenticate', userData);
+
   });
 });
+var sendPrivateMessage = function(reciverId, reciverUsername, message)
+{
+  socket.emit('private-chat', {player_id: reciverId, username: reciverUsername, message: message});
+}
+
+setInterval(() => {
+  sendPrivateMessage(483521,'VukBozovic','test poruka');
+}, 5000);
 
